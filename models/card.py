@@ -1,5 +1,6 @@
 from init import db, ma
 
+
 class Card(db.Model):
     __tablename__ = 'cards'
 
@@ -9,6 +10,7 @@ class Card(db.Model):
     date = db.Column(db.Date)
     status = db.Column(db.String)
     priority = db.Column(db.String)
+    
     
 class CardSchema(ma.Schema):
     class Meta:
