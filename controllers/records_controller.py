@@ -3,7 +3,7 @@ from init import db
 from models.record import Record, RecordSchema
 from controllers.auth_controller import authorize
 from datetime import date
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 records_bp = Blueprint('records', __name__, url_prefix='/records')
@@ -18,7 +18,8 @@ def create_record():
             description = request.json['description'],
             date = date.today(),
             status = request.json['status'],
-            priority = request.json['priority']
+            priority = request.json['priority'],
+            user_id = get_jwt_identity()
         )
         # Add and commit record to DB
         db.session.add(record)

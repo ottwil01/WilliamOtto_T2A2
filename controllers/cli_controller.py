@@ -3,6 +3,7 @@ from init import db, bc
 from models.record import Record
 from models.user import User
 from datetime import date
+from models.comment import Comment
  
 
 db_commands = Blueprint('db', __name__ )
@@ -44,7 +45,7 @@ def seed_db():
             status = 'To Do',
             priority = 'High',
             date = date.today(),
-            user_id = users[0].id
+            user = users[0]
         ),
         Record(
             title = "SQLAlchemy",
@@ -52,7 +53,7 @@ def seed_db():
             status = "Ongoing",
             priority = "High",
             date = date.today(),
-            user_id = users[0].id
+            user = users[0]
         ),
         Record(
             title = "ORM Queries",
@@ -60,7 +61,7 @@ def seed_db():
             status = "Ongoing",
             priority = "Medium",
             date = date.today(),
-            user_id = users[1].id
+            user = users[1]
         ),
         Record(
             title = "Marshmallow",
@@ -68,10 +69,35 @@ def seed_db():
             status = "Ongoing",
             priority = "Medium",
             date = date.today(),
-            user_id = users[1].id
+            user = users[1]
         )
     ]
 
     db.session.add_all(records)
     db.session.commit()
+    
+    comments = [
+        Comment(
+            message = 'comment 1',
+            user = users[0],
+            record = records[0],
+            date = date.today()
+        ),
+        Comment(
+            message = 'comment 2',
+            user = users[1],
+            record = records[2],
+            date = date.today()
+        ),
+        Comment (
+            message = 'comment 3',
+            user = users[1],
+            record = records[3],
+            date = date.today()
+        )
+    ]
+    
+    db.session.add_all(comments)
+    db.session.commit()
+    
     print('Tables seeded')
