@@ -1,11 +1,11 @@
 from flask import Blueprint
 from init import db, bc
-from models.card import Card
+from models.record import Record
 from models.user import User
 from datetime import date
  
 
-db_commands = Blueprint('d b', __name__ )
+db_commands = Blueprint('db', __name__ )
  
 
 # Define a custom CLI (terminal) command
@@ -34,38 +34,44 @@ def seed_db():
         )
     ]
 
-    cards = [
-        Card(
+    db.session.add_all(users)
+    db.session.commit()
+
+    records = [
+        Record(
             title = 'Start the project',
             description = 'Stage 1 - Create the database',
             status = 'To Do',
             priority = 'High',
-            date = date.today()
+            date = date.today(),
+            user_id = users[0].id
         ),
-        Card(
+        Record(
             title = "SQLAlchemy",
             description = "Stage 2 - Integrate ORM",
             status = "Ongoing",
             priority = "High",
-            date = date.today()
+            date = date.today(),
+            user_id = users[0].id
         ),
-        Card(
+        Record(
             title = "ORM Queries",
             description = "Stage 3 - Implement several queries",
             status = "Ongoing",
             priority = "Medium",
-            date = date.today()
+            date = date.today(),
+            user_id = users[1].id
         ),
-        Card(
+        Record(
             title = "Marshmallow",
             description = "Stage 4 - Implement Marshmallow to jsonify models",
             status = "Ongoing",
             priority = "Medium",
-            date = date.today()
+            date = date.today(),
+            user_id = users[1].id
         )
     ]
 
-    db.session.add_all(cards)
-    db.session.add_all(users)
+    db.session.add_all(records)
     db.session.commit()
     print('Tables seeded')
