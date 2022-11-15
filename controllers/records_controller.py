@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 from init import db
 from models.record import Record, RecordSchema
+from models.comment import Comment, CommentSchema
 from controllers.auth_controller import authorize
 from datetime import date
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -13,19 +14,21 @@ records_bp = Blueprint('records', __name__, url_prefix='/records')
 @jwt_required()
 def create_record():
         # Create a new Record model instance
+        data = RecordSchema().load(request.json)
+        
         record = Record(
-            title = request.json['title'],
-            description = request.json['description'],
+            title = data['title'],
+            description = data['description'],
             date = date.today(),
-            status = request.json['status'],
-            priority = request.json['priority'],
+            status = data['status'],
+            priority = data['priority'],
             user_id = get_jwt_identity()
         )
         # Add and commit record to DB
         db.session.add(record)
         db.session.commit()
         # Respond to client
-        return RecordSchema( ).dump(record), 201
+        return RecordSchema().dump(record), 201
 
 
 @records_bp.route('/')
@@ -73,5 +76,23 @@ def delete_one_record(id):
         db.session.delete(record)
         db.session.commit()
         return {'message' : f" Record '{record.title}' deleted successfully"}
+    else:
+        return {'error': f'Record not found with id {id}'}, 404
+
+@records_bp.route('/<int:record_id>/comments', methods=['POST'])
+@jwt_required()
+def create_comment(record_id):
+    stmt = db.select(Record).filter_by(id=record_id)
+    record = db.session.scalar(stmt)
+    if record:
+        comment = Comment(
+            message = request.json['message'],
+            user_id = get_jwt_identity(),
+            record = record,
+            date = date.today()
+        ) 
+        db.session.add(comment)
+        db.session.commit()
+        return CommentSchema( ).dump(comment), 201
     else:
         return {'error': f'Record not found with id {id}'}, 404
