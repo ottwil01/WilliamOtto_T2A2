@@ -2,7 +2,7 @@ from flask import Flask
 from init import db, ma, bc, jwt
 from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import StatementError
-from controllers.records_controller import records_bp
+from controllers.vinyls_controller import vinyls_bp
 from controllers.auth_controller import auth_bp
 from controllers.cli_controller import db_commands
 import os
@@ -65,7 +65,7 @@ def create_app():
     jwt.init_app(app)
 
     app.register_blueprint(db_commands)
-    app.register_blueprint(records_bp)
+    app.register_blueprint(vinyls_bp)
     app.register_blueprint(auth_bp)
 
     return app
