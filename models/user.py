@@ -14,7 +14,7 @@ class User(db.Model):
     # Foreign key relationships
     comments = db.relationship('Comment', back_populates='user', cascade='all, delete')
     likes = db.relationship('Like', back_populates='user', cascade='all, delete')
-
+    vinyls = db.relationship('Vinyl', back_populates='user', cascade='all, delete')
 
 # Marshmallow schema
 class UserSchema(ma.Schema):

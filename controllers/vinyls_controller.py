@@ -7,7 +7,21 @@ from datetime import date
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
+# Vinyls Controller Blueprint
 vinyls_bp = Blueprint('vinyls', __name__, url_prefix='/vinyls')
+
+
+# Get all vinyl by artist
+@vinyls_bp.route('/artist/<int:artist_id>/', methods=['GET'])
+@jwt_required()
+def artist_vinyls(artist_id):
+    
+    # Query to find vinyl by artist ID
+    stmt = db.select(Artist).filter_by(artist_id=artist_id)
+    vinyl = db.session.scalars(stmt)
+
+    # Respond to client with all vinyls by artist excluding linked comments, likes and artist
+    return ArtistSchema(many=True, exclude=['artist_id', 'comments', 'likes']).dump(vinyl)
 
 # Add a vinyl
 @vinyls_bp.route('/', methods=['POST'])
@@ -17,11 +31,8 @@ def create_vinyl():
         data = VinylSchema().load(request.json)
         
         vinyl = Vinyl(
-            title = data['title'],
-            description = data['description'],
+            artist_id = data['artist_id'],
             date = date.today(),
-            status = data['status'],
-            priority = data['priority'],
             user_id = get_jwt_identity()
         )
         # Add and commit vinyl to DB
@@ -29,6 +40,7 @@ def create_vinyl():
         db.session.commit()
         # Respond to client
         return VinylSchema().dump(vinyl), 201
+
 
 # get all vinyls
 @vinyls_bp.route('/')
@@ -54,15 +66,9 @@ def get_one_vinyl(id):
 def update_one_vinyl(id):
     stmt = db.select(Vinyl).filter_by(id=id)
     vinyl = db.session.scalar(stmt)
-    if vinyl:
-        vinyl.title = request.json.get('title') or vinyl.title
-        vinyl.description = request.json.get('description') or vinyl.description
-        vinyl.status = request.json.get('status') or vinyl.status
-        vinyl.priority = request.json.get('priority') or vinyl.priority
-        db.session.commit()
-        return VinylSchema().dump(vinyl)
-    else:
-        return {'error': f'Vinyl not found with id {id}'}, 404
+    
+    return VinylSchema().dump(vinyl)
+
 
 # remove a vinyl (requires authentication)
 @vinyls_bp.route('/<int:id>', methods=['DELETE'])
@@ -79,22 +85,3 @@ def delete_one_vinyl(id):
     else:
         return {'error': f'Vinyl not found with id {id}'}, 404
 
-@vinyls_bp.route('/<int:vinyl_id>/comments', methods=['POST'])
-@jwt_required()
-def create_comment(vinyl_id):
-    stmt = db.select(Vinyl).filter_by(id=vinyl_id)
-    vinyl = db.session.scalar(stmt)
-    if vinyl:
-        comment = Comment(
-            message = request.json['message'],
-            user_id = get_jwt_identity(),
-            vinyl = vinyl,
-            date = date.today()
-        )
-        # Add and commit vinyl to DB
-        db.session.add(comment)
-        db.session.commit()
-        # Respond to client
-        return CommentSchema( ).dump(comment), 201
-    else:
-        return {'error': f'Vinyl not found with id {id}'}, 404

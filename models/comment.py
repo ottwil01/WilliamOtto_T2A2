@@ -9,8 +9,8 @@ class Comment(db.Model):
     message = db.Column(db.Text)
     date = db.Column(db.Date)
     # Foreign keys
-    comment_author = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     vinyl_post_id = db.Column(db.Integer, db.ForeignKey('vinyls.id'), nullable=False)
+    comment_artist = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     # Foreign key relationships
     user = db.relationship('User', back_populates='comments')
     vinyl = db.relationship('Vinyl', back_populates='comments')

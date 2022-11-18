@@ -24,7 +24,7 @@ class VinylSchema(ma.Schema):
     artist = fields.Nested('ArtistSchema', only=['name', 'album', 'genre'])
     user = fields.Nested('UserSchema', only=['name'])
     comments = fields.List(fields.Nested('CommentSchema', only=['user', 'message', 'date']))
-    likes = fields.List(fields.Nested('LikeSchema', only=['like_author', 'date']))
+    likes = fields.List(fields.Nested('LikeSchema', only=['like_artist', 'date']))
 
     # Validation
     # comments = fields.List(fields.Nested('CommentSchema', exclude=['vinyl']))

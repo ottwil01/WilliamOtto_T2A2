@@ -5,7 +5,7 @@ from models.user import User
 from datetime import date
 from models.comment import Comment
  
-
+# CLI Controller Blueprint
 db_commands = Blueprint('db', __name__ )
 
 
@@ -115,51 +115,51 @@ def seed_db():
     ]
     likes = [
         Like(
-            like_author = users[1],
+            like_artist = users[1],
             vinyl = vinyls[0],
         ),
         Like(
-            like_author = users[2],
+            like_artist = users[2],
             vinyl = vinyls[0],
         ),
         Like(
-            like_author = users[3],
+            like_artist = users[3],
             vinyl = vinyls[0],
         ),
         Like(
-            like_author = users[0],
+            like_artist = users[0],
             vinyl = vinyls[1],
         ),
         Like(
-            like_author = users[1],
+            like_artist = users[1],
             vinyl = vinyls[1],
         ),
         Like(
-            like_author = users[0],
+            like_artist = users[0],
             vinyl = vinyls[2],
         ),
         Like(
-            like_author = users[1],
+            like_artist = users[1],
             vinyl = vinyls[2],
         ),
         Like(
-            like_author = users[2],
+            like_artist = users[2],
             vinyl = vinyls[2],
         ),
         Like(
-            like_author = users[3],
+            like_artist = users[3],
             vinyl = vinyls[2],
         ),
         Like(
-            like_author = users[0],
+            like_artist = users[0],
             vinyl = vinyls[3],
         ),
         Like(
-            like_author = users[1],
+            like_artist = users[1],
             vinyl = vinyls[3],
         ),
         Like(
-            like_author = users[3],
+            like_artist = users[3],
             vinyl = vinyls[3],
         )
     ]

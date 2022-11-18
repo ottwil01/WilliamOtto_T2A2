@@ -4,10 +4,13 @@ from marshmallow.exceptions import ValidationError
 from sqlalchemy.exc import StatementError
 from controllers.vinyls_controller import vinyls_bp
 from controllers.auth_controller import auth_bp
+from controllers.comments_controller import comments_bp
+from controllers.likes_controller import likes_bp
+from controllers.artists_controller import artists_bp
 from controllers.cli_controller import db_commands
 import os
 
-
+# Function to define our app
 def create_app():
     app = Flask(__name__)
     # Error handlers
@@ -40,7 +43,7 @@ def create_app():
         return {"error": str(err)}, 400
             
     @app.errorhandler(401)
-    def not_authorised(err):
+    def not_artistised(err):
         return {"error": str(err)}, 401
     
     @app.errorhandler(404)
@@ -54,19 +57,28 @@ def create_app():
     @app.errorhandler(409)
     def conflict_err(err):
         return {"error": str(err)}, 409
-
+    
+    # Stopping flask from trying to sort the returned JSON resources 
     app.config['JSON_SORT_KEYS'] = False
+    # Getting our database link from our environment variables 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    # Getting JWT secret key from environment variables 
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
-     
+    
+    # Instantiating models
     db.init_app(app)
     ma.init_app(app)
     bc.init_app(app)
     jwt.init_app(app)
-
+    
+    # Connecting blueprints to app
     app.register_blueprint(db_commands)
     app.register_blueprint(vinyls_bp)
+    app.register_blueprint(artists_bp)
+    app.register_blueprint(comments_bp)
+    app.register_blueprint(likes_bp)
     app.register_blueprint(auth_bp)
-
+    
+    # Must return the app so flask can recognise it 
     return app
  
