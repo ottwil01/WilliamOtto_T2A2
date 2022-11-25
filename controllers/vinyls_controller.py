@@ -12,7 +12,7 @@ vinyls_bp = Blueprint('vinyls', __name__, url_prefix='/vinyls')
 
 
 # Get all vinyl by artist
-@vinyls_bp.route('/artist/<int:artist_id>/', methods=['GET'])
+@vinyls_bp.route('/artist/<int:id>/', methods=['GET'])
 @jwt_required()
 def artist_vinyls(artist_id):
     
@@ -21,7 +21,7 @@ def artist_vinyls(artist_id):
     vinyl = db.session.scalars(stmt)
 
     # Respond to client with all vinyls by artist excluding linked comments, likes and artist
-    return ArtistSchema(many=True, exclude=['artist_id', 'comments', 'likes']).dump(vinyl)
+    return ArtistSchema(many=True, exclude=['id', 'comments', 'likes']).dump(vinyl)
 
 # Add a vinyl
 @vinyls_bp.route('/', methods=['POST'])
@@ -50,8 +50,8 @@ def get_all_vinyls():
     vinyls = db.session.scalars(stmt)
     return VinylSchema(many=True).dump(vinyls)
 
-
-@vinyls_bp.route('/<int:id>')
+# get one vinyl
+@vinyls_bp.route('/<int:id>', methods=['GET'])
 def get_one_vinyl(id):
     stmt = db.select(Vinyl).filter_by(id=id)
     vinyl = db.session.scalar(stmt)
@@ -70,7 +70,7 @@ def update_one_vinyl(id):
     return VinylSchema().dump(vinyl)
 
 
-# remove a vinyl (requires authentication)
+# remove a vinyl (authentication required)
 @vinyls_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_one_vinyl(id):

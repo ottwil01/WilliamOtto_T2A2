@@ -12,7 +12,6 @@ Flask-JWT-Extended==4.4.4
 Flask-Mail==0.9.1
 flask-marshmallow==0.14.0
 Flask-SQLAlchemy==3.0.2
-future @ file:///System/Volumes/Data/SWE/Apps/DT/BuildRoots/BuildRoot1/ActiveBuildRoot/Library/Caches/com.apple.xbs/Sources/python3/python3-124/future-0.18.2-py3-none-any.whl
 greenlet==2.0.1
 importlib-metadata==5.0.0
 iniconfig==1.1.1

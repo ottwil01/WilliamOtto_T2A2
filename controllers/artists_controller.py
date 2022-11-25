@@ -39,3 +39,22 @@ def one_artist(id):
     # If not found
     else:
         return {'error': f'No artist with id {id}'}, 404
+    
+    # Get one artist by ID (requires authentication)
+@artists_bp.route('/<int:id>', methods=['GET'])
+@jwt_required()
+def one_artist(id):
+    
+    # Query to find artist by ID
+    stmt = db.select(Artist).filter_by(id=id)
+    artist = db.session.scalar(stmt)
+    
+    # If found
+    if artist:
+        
+        # Respond to client with artist
+        return ArtistSchema().dump(artist)
+    
+    # If not found
+    else:
+        return {'error': f'No artist with id {id}'}, 404
