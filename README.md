@@ -14,8 +14,10 @@
 
 # R1
 The purpose of this project is to provide people a way to catalogue their person vinyl collections. Users can add friends to see what they have in their collections, comment/like on these posts, and access a database of artists in the catalogue. The users will be able to search by artist, genre or album.
+
 # R2
 As vinyl collections are purely physical, for some people, there is a desire to be able to catalogue their vinyl collections and share it with others, making it a more social experience.
+
 # R3
 My database system of choise is PostgreSQL. The main reasons for using PostgreSQL are as follows:
 
@@ -43,13 +45,13 @@ The disadvantages of an ORM system is that it is inherently slower than direct S
 
 # R5
 
-## Authorization Endpoints
+## Authorization Endpoints:
 ### auth/login
 Method: POST
 Identifier: Email
 Authentication: Email and password
 Token: JWT
-Description: User can log in which generates a JWT which is used for authentication.
+Description: User can log, generating a JWT which is used for authentication.
 
 ### auth/register
 Method: POST
@@ -62,6 +64,7 @@ Description: Creates a new user.
 Method: GET
 Identifier: None
 Authentication: None
+Authorization: None
 Token: None
 Description: Shows a list of all users, with vinyls that have been posted.
 
@@ -83,22 +86,22 @@ Description: Displays all vinyls with genre, album and user information for the 
 ### vinyl/
 Method: POST
 Identifier: None
-Authentication: None
-Token: None
-Description: Creates a new vinyl
+Authentication: @jwt_required()
+Token: JWT bearer token
+Description: Creates a new vinyl.
 
 ### vinyl/
 Method: PUT, PATCH
 Identifier: None
-Authentication: None
-Token: None
+Authentication: @jwt_required()
+Token: JWT bearer token
 Description: Updates a specific vinyl.
 
 ### vinyl/
 Method: DELETE
 Identifier: None
-Authentication: None
-Token: None
+Authentication: @jwt_required()
+Token: JWT bearer token
 Description: Deletes a specific vinyl.
 
 ## Artist Endpoints:
@@ -107,56 +110,65 @@ Method: GET
 Identifier: None
 Authentication: None
 Token: None
-Description: Get all artists
+Description: Get all artists.
 
-### artist/<string:artist.artist>
+### artist/<int:id>
 Method: GET
 Identifier: None
 Authentication: None
 Token: None
-Description: Get all songs and albums by an artist
+Description: Get one artist.
 
-### artist/genre>
-Method: GET
-Identifier: 
-Authentication: 
-Token: 
-Description: Get all artists by genre
+### artist/<int:id>
+Method: PUT, PATCH
+Identifier: None
+Authentication: None
+Token: None
+Description: Update one artist.
 
-### artist/albums>
-Method: GET
-Identifier: 
-Authentication: No
-Token: 
-Description: Get all albums by artist
-
-### artist/>
-Method: POST/PATCH
-Identifier: 
-Authentication: 
-Token: 
-Description: 
-
-### artist/>
+### artist/<int:id>
 Method: DELETE
-Identifier: 
-Authentication: 
-Token: 
-Description: 
+Identifier: None
+Authentication: @jwt_required()
+Token: JWT bearer token
+Description: Delete an artist.
 
-## CLI Endpoints:
-### cli/>
+## Comments Endpoints:
+### comments/<int:vinyl_id>
+Method: POST
+Identifier: None
+Authentication: None
+Token: None
+Description: Creates a comment.
+
+### comments/<int:vinyl_id>
 Method: DELETE
-Identifier: 
-Authentication: 
-Token: 
-Description: 
+Identifier: None
+Authentication: None
+Token: None
+Description: Deletes a comment.
+
+## Likes Endpoints:
+### likess/<int:vinyl_id>
+Method: POST
+Identifier: None
+Authentication: None
+Token: None
+Description: Creates a like.
+
+### likes/<int:vinyl_id>
+Method: DELETE
+Identifier: None
+Authentication: None
+Token: None
+Description: Deletes a like.
 
 # R6
 ![ERD](docs/Vinyl_ERD.png)
+
 # R7
-- Flask
-- Marshmallow
+- Flask:
+- Marshmallow:
 - Flask-Marshmallow
 - SQLAlchemy
 - BCrypt
@@ -164,8 +176,106 @@ Description:
 - PostreSQL
 
 # R8
+## User Model:
+### Attributes:
+- id (integer, primary key)
+- first_name (String(50), not empty)
+- last_name (String(50))
+- email (string, not empty, unique)
+- password (string, not empty)
+- is_admin (boolean, default to false)
+
+### Relationships:
+- Comments:
+  - Comments model is linked to user model to allow sharing of attributes from comments to user entities.
+  - Cascade delete means if a user is deleted, all related comments are deleted too.
+- Likes:
+  - Likes model is linked to user model to allow sharing of attributes from likes to user entities.
+  - Cascade delete means if a user is deleted, all related comments are deleted too.
+- Vinyls:
+  - Vinyls model is linked to user model to allow sharing of attributes from vinyls to user entities.
+  - Cascade delete means if a user is deleted, all related comments are deleted too.
+
+### Validation:
+- first_name:
+  - The first name must be longer that 1 letter, and contain only letters.
+- last_name:
+  - The last name must be longer than 1 letter, and contain only letters.
+- email:
+  - The email address requires at least 2 characters and must be a valid email address.
+- password:
+  - The password requires at least one uppercase letter, at least one lowercase letter, at least one digit, at least one special character and be at least 8 characters long.
+
+## Vinyl Model:
+### Attributes:
+- id (integer, primary key)
+- date (date, not empty)
+
+### Foreign Keys:
+- user_id (integer, not empty) - using id attribute from user model.
+- artist_id (integer, not empty) - using artist attribute from artist model.
+
+### Relationships:
+- artist:
+  - artist model is linked to vinyl model to allow sharing of attributes from artists to vinyl entities.
+- user:
+  - user model is linked to vinyl model to allow sharing of attributes from users to vinyl entities.
+- comments:
+  - comments model is linked to vinyl model to allow sharing of attributes from comments to vinyl entities.
+  - only include the 'user', 'message' and 'date' attributes.
+- likes:
+  - likes model is linked to vinyl model to allow sharing of attributes from likes to vinyl entities.
+  - only include the 'like_author' and 'date' attributes.
+
 ## Artist Model:
+### Attributes:
+- id (integer, primary key)
+- artist (string, not empty)
+- album (string, not empty)
+- genre (string, not empty)
+
+### Relationships:
+- Vinyl:
+  - Vinyls model is linked to artist model to allow sharing of attributes from vinyls to artist entities.
+  - Cascade delete means if an artist is deleted, all related vinyls are deleted too.
+
+## Comment Model:
+### Attributes:
+- id (integer, primary key)
+- message (text, not empty)
+- date (date, not empty)
+
+### Foreign Keys:
+- vinyl_post_id (integer, not empty) - using id attribute from vinyls.
+- comment_author (integer, not empty) - using id attribute from comments.
+
+### Relationships:
+- User:
+  - user model is linked to comment model to allow sharing of attributes from users to comment entities.
+  - include only the 'id' and 'name' attributes.
+- Vinyl:
+  - vinyl model is linked to comment model to allow sharing of attributes from vinyl to comment entities.
+  - include only the 'id', 'artist' and 'album' attributes.
+
+## Like Model:
+### Attributes:
+- id (integer, primary key)
+- date (date, not empty)
+
+### Foreign Keys:
+- vinyl_post_id (integer, not empty) - using id attribute from vinyls.
+- like_author (integer, not empty) - using id attribute from likes.
+
+### Relationships:
+- User:
+  - user model is linked to comment model to allow sharing of attributes from users to comment entities.
+  - include only the 'id' and 'name' attributes.
+- Vinyl:
+  - vinyl model is linked to comment model to allow sharing of attributes from vinyl to comment entities.
+  - include only the 'id', 'artist' and 'album' attributes.
 
 # R9
+This API features 5 tables, one for users, vinyls, artists, comments and likes. 
 
 # R10
+I used Trello to allocate and track the tasks in this project.

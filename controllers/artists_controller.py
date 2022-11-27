@@ -21,40 +21,38 @@ def all_artists():
     return ArtistSchema(many=True).dump(artists)
 
 
-# Get one artist by ID (requires authentication)
+# get one artist
 @artists_bp.route('/<int:id>', methods=['GET'])
-@jwt_required()
-def one_artist(id):
-    
-    # Query to find artist by ID
+def get_one_artist(id):
     stmt = db.select(Artist).filter_by(id=id)
     artist = db.session.scalar(stmt)
-    
-    # If found
     if artist:
-        
-        # Respond to client with artist
         return ArtistSchema().dump(artist)
-    
-    # If not found
     else:
-        return {'error': f'No artist with id {id}'}, 404
-    
-    # Get one artist by ID (requires authentication)
-@artists_bp.route('/<int:id>', methods=['GET'])
+        return {'error': f'Artist not found with id {id}'}, 404
+
+# update an artist (authentication required)
+@artists_bp.route('/<int:id>', methods=['PUT', 'PATCH'])
 @jwt_required()
-def one_artist(id):
+def update_one_artist(id):
+    stmt = db.select(Artist).filter_by(id=id)
+    vinyl = db.session.scalar(stmt)
     
-    # Query to find artist by ID
+    return ArtistSchema().dump(artist)
+
+
+# remove an artist (authentication required)
+@artists_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_one_artist(id):
+    authorize()
+     
     stmt = db.select(Artist).filter_by(id=id)
     artist = db.session.scalar(stmt)
-    
-    # If found
     if artist:
-        
-        # Respond to client with artist
-        return ArtistSchema().dump(artist)
-    
-    # If not found
+        db.session.delete(artist)
+        db.session.commit()
+        return {'message' : f" Artist '{artist.artist}' deleted successfully"}
     else:
-        return {'error': f'No artist with id {id}'}, 404
+        return {'error': f'Artist not found with id {id}'}, 404
+

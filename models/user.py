@@ -19,7 +19,19 @@ class User(db.Model):
 # Marshmallow schema
 class UserSchema(ma.Schema):
     # Validation
+    first_name = fields.String(required=True, validate=
+        Regexp('^(?=\S{1,}$)[a-zA-Z ]+$', error="First name must be at least 1 letter long and contain only letters")) 
 
+    last_name = fields.String(validate= 
+        Regexp('^[a-zA-Z ]+$', error="Last name must be at least 1 letter long and contain only letters"))
+
+    email = fields.String(required=True, validate= 
+        Regexp('^[A-Za-z0-9._+\-\']+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$', error="This is not a valid email address"))
+    
+    password = fields.String(required=True, validate=And(
+    Regexp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$', error='Password must have at least 1 upper case, at least 1 lower case, at least 1 number, and at least 1 special character and be at least 8 characters long')
+        )
+    )
     class Meta:
         fields = ('id', 'first_name', 'email', 'password', 'is_admin')
         ordered = True
